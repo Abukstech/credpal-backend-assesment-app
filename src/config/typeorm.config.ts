@@ -7,13 +7,13 @@ const isProductionEnvironment = process.env.NODE_ENV === 'production';
 
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'postgres',
+  type: 'mysql',
 
   host: isProductionEnvironment ? process.env.MYSQL_HOST : process.env.MYSQL_HOST_LOCAL,
   username: isProductionEnvironment ? process.env.MYSQL_USER :  process.env.MYSQL_USER_LOCAL,
   database: isProductionEnvironment ? process.env.MYSQL_DATABASE :  process.env.MYSQL_DATABASE_LOCAL,
   password: isProductionEnvironment ? process.env.MYSQL_PASSWORD :  process.env.MYSQL_PASSWORD_LOCAL,
-  
+  port: Number(process.env.MYSQL_PORT) || 3306, // Default MySQL port is 3306
   // host: process.env.PG_HOST,
   // username: process.env.PG_USER,
   // database: process.env.PG_DATABASE,
