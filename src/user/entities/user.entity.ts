@@ -17,9 +17,18 @@ export class User {
   @Column()
   password: string; // Hashed password
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value)
+    }
+  })
   balance: number;
 
+  
   @OneToMany(() => Transaction, transaction => transaction.sender)
   sentTransactions: Transaction[];
 
