@@ -26,6 +26,10 @@ export class Transaction {
   @ManyToOne(() => User, user => user.receivedTransactions, { nullable: true })
   receiver: User;
 
-  @CreateDateColumn()
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'createdAt'
+  })
   createdAt: Date;
 }

@@ -12,7 +12,7 @@ export const dataSource = new DataSource({
   password: process.env.MYSQL_PASSWORD,
   port: Number(process.env.MYSQL_PORT) || 5432,
   entities: [__dirname + '/../**/*.entity.{js,ts}'], // Use relative path
-  migrations: [__dirname + '/../database/*.{ts,js}'], // Migration directory
+  migrations: [__dirname + '/../database/migrations/*.{ts,js}'], // Migration directory
   synchronize: false, // Disable auto sync for production
   logging: false, // Disable logging for production
   extra: {
