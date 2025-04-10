@@ -11,7 +11,7 @@ async function bootstrap() {
 
   // CORS configuration should come before other middleware
   app.enableCors({
-    origin: ["http://localhost:5173", "https://credpal-backend-assesment-app.onrender.com"],
+    origin: ["http://localhost:5173", "https://credpal-backend-assesment-app.onrender.com","https://credpal-fe-assesment.onrender.com"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
