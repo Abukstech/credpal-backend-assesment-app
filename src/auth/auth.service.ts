@@ -6,6 +6,7 @@ import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateLoginDto } from './dto/auth.dto';
 import { Response } from 'express';
+import { CookieOptions } from 'express';
 
 
 
@@ -51,19 +52,38 @@ export class AuthService {
           name: user.name,
           email: user.email,
         };
-    
-        const token = this.jwtService.sign(payload);
-    
-        response.cookie('access_token', token, {
+
+
+ const token = this.jwtService.sign(payload);
+        const cookieOptions :CookieOptions= {
           httpOnly: true,
-          secure: true,
-          sameSite: 'none',
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           maxAge: 24 * 60 * 60 * 1000, // 1 day
-          domain: process.env.NODE_ENV === 'production' 
-            ? 'credpal-fe-assesment.onrender.com'  // Your frontend domain
-            : 'localhost',
-          path: '/'
-        });
+          path: '/',
+        };
+      
+        // Only set domain in production
+        if (process.env.NODE_ENV === 'production') {
+          Object.assign(cookieOptions, {
+            domain: 'credpal-fe-assesment.onrender.com'
+          });
+        }
+      
+        response.cookie('access_token', token, cookieOptions);
+    
+       
+    
+        // response.cookie('access_token', token, {
+        //   httpOnly: true,
+        //   secure: true,
+        //   sameSite: 'none',
+        //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+        //   domain: process.env.NODE_ENV === 'production' 
+        //     ? 'credpal-fe-assesment.onrender.com'  // Your frontend domain
+        //     : 'localhost',
+        //   path: '/'
+        // });
     
         // Create sanitized user object without password
         const sanitizedUser = {
