@@ -71,7 +71,7 @@ export class AuthController {
   async login(
     @Body() createLoginDto: CreateLoginDto,
     @Req() req: any,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     try {
       console.log('here')
