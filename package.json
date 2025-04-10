@@ -6,10 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-"build": "npx nest build",
+"build": " npm run  preinstall &&  nest build",
 
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
- 
+    "preinstall": "npm install -g @nestjs/cli",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
