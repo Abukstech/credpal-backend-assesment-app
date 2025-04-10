@@ -56,9 +56,13 @@ export class AuthService {
     
         response.cookie('access_token', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: true,
           sameSite: 'none',
-          maxAge: 24 * 60 * 60 * 1000 // 1 day
+          maxAge: 24 * 60 * 60 * 1000, // 1 day
+          domain: process.env.NODE_ENV === 'production' 
+            ? 'credpal-fe-assesment.onrender.com'  // Your frontend domain
+            : 'localhost',
+          path: '/'
         });
     
         // Create sanitized user object without password
