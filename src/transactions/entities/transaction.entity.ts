@@ -1,6 +1,7 @@
 // src/transaction/transaction.entity.ts
 import { User } from 'src/user/entities/user.entity';
 import { generateUniqueTransactionId } from 'src/utils/generateNumber';
+
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 
 
@@ -23,6 +24,7 @@ export class Transaction {
 
   @Column({ 
     unique: true,
+    length: 11,
     default: () => `'${generateUniqueTransactionId()}'` 
   })
   transactionId: string;

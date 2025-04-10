@@ -31,46 +31,48 @@ export class AuthService {
 
 
     
-      async login(createLoginDto:CreateLoginDto,response:Response): Promise<any> {
+      async login(createLoginDto: CreateLoginDto, response: Response): Promise<any> {
         const user = await this.userService.findOneByEmail(createLoginDto.email);
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
-          }
-      
-          const isValidPassword = await this.passwordService.comparePassword(
-            createLoginDto.password,
-            user.password,
-          );
-      
-          if (!isValidPassword) {
-            throw new UnauthorizedException('Invalid credentials');
-          }
-
-          const payload = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          };
-
-          const token = this.jwtService.sign(payload);
-
-          response.cookie('access_token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // use secure in production
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 1 day
-          });
-
-
-          return {
-          
-            user,
-            token
-          };
-
-         
-
-      
+          throw new UnauthorizedException('Invalid credentials');
+        }
+    
+        const isValidPassword = await this.passwordService.comparePassword(
+          createLoginDto.password,
+          user.password,
+        );
+    
+        if (!isValidPassword) {
+          throw new UnauthorizedException('Invalid credentials');
+        }
+    
+        const payload = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        };
+    
+        const token = this.jwtService.sign(payload);
+    
+        response.cookie('access_token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+    
+        // Create sanitized user object without password
+        const sanitizedUser = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          balance: user.balance
+        };
+    
+        return {
+          user: sanitizedUser,
+          token
+        };
       }
 
       async logout(response: Response) {

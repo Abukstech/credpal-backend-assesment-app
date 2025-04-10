@@ -9,6 +9,8 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { generateUniqueTransactionId } from 'src/utils/generateNumber';
+import { SanitizedTransaction } from './types/transactionType';
+;
 
 @Injectable()
 export class TransactionsService {
@@ -53,11 +55,35 @@ export class TransactionsService {
       type,
       amount,
       sender,
-      receiver: receiver !,
+      receiver: receiver!,
       transactionId: generateUniqueTransactionId(),
     });
 
-    return this.txnRepo.save(transaction);
+    const savedTransaction = await this.txnRepo.save(transaction);
+
+    // Sanitize the response
+    const sanitizedTransaction: SanitizedTransaction = {
+        id: savedTransaction.id,
+        transactionId: savedTransaction.transactionId,
+        type: savedTransaction.type,
+        amount: savedTransaction.amount,
+        status: savedTransaction.status,
+        createdAt: savedTransaction.createdAt,
+        sender: savedTransaction.sender ? {
+            id: savedTransaction.sender.id,
+            name: savedTransaction.sender.name,
+            email: savedTransaction.sender.email,
+            balance: savedTransaction.sender.balance
+        } : undefined,
+        receiver: savedTransaction.receiver ? {
+            id: savedTransaction.receiver.id,
+            name: savedTransaction.receiver.name,
+            email: savedTransaction.receiver.email,
+            balance: savedTransaction.receiver.balance
+        } : undefined
+    };
+
+    return sanitizedTransaction;
   }
 
 
@@ -71,10 +97,10 @@ export class TransactionsService {
     const { page = 1, limit = 2 } = paginationDto;
     const skip = Math.max(0, (page - 1) * limit);
 
-  
-
     const [transactions, total] = await this.txnRepo
         .createQueryBuilder('transaction')
+        .leftJoinAndSelect('transaction.sender', 'sender')
+        .leftJoinAndSelect('transaction.receiver', 'receiver')
         .where('(transaction.senderId = :userId OR transaction.receiverId = :userId)', 
               { userId: userId })
         .orderBy('transaction.createdAt', 'DESC')
@@ -82,8 +108,32 @@ export class TransactionsService {
         .take(limit)
         .getManyAndCount();
 
+    const sanitizedTransactions: SanitizedTransaction[] = transactions.map(transaction => {
+        const sanitized: SanitizedTransaction = {
+            id: transaction.id,
+            transactionId: transaction.transactionId,
+            type: transaction.type,
+            amount: transaction.amount,
+            status: transaction.status,
+            createdAt: transaction.createdAt,
+            sender: transaction.sender ? {
+                id: transaction.sender.id,
+                name: transaction.sender.name,
+                email: transaction.sender.email,
+                balance: transaction.sender.balance
+            } : undefined,
+            receiver: transaction.receiver ? {
+                id: transaction.receiver.id,
+                name: transaction.receiver.name,
+                email: transaction.receiver.email,
+                balance: transaction.receiver.balance
+            } : undefined
+        };
+        return sanitized;
+    });
+
     return {
-        data: transactions,
+        data: sanitizedTransactions,
         meta: {
             total,
             currentPage: page,

@@ -13,6 +13,7 @@ import { CreateLoginDto } from 'src/auth/dto/auth.dto';
 export class TransactionsController {
 
     constructor(private readonly transactionService: TransactionsService) {}
+    
     @Version('1')
     @ApiOperation({ summary: 'Create a new Transaction' })
     @ApiBody({ type: CreateTransactionDto })
