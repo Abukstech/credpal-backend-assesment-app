@@ -1,5 +1,6 @@
 // src/transaction/transaction.entity.ts
 import { User } from 'src/user/entities/user.entity';
+import { generateUniqueTransactionId } from 'src/utils/generateNumber';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 
 
@@ -9,13 +10,28 @@ export enum TransactionType {
   TRANSFER = 'transfer',
 }
 
+export enum TransactionStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  LIQUIDATED = 'liquidated',
+}
+
 @Entity()
 export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ 
+    unique: true,
+    default: () => `'${generateUniqueTransactionId()}'` 
+  })
+  transactionId: string;
+
   @Column({ type: 'enum', enum: TransactionType })
   type: TransactionType;
+
+  @Column({ type: 'enum', enum: TransactionStatus,nullable: true })
+  status: TransactionStatus;
 
   @Column({
     type: 'decimal',

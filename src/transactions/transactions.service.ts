@@ -4,9 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import { Transaction, TransactionType } from './entities/transaction.entity';
+import { Transaction, TransactionStatus, TransactionType } from './entities/transaction.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CreateTransactionDto } from './dto/transaction.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { generateUniqueTransactionId } from 'src/utils/generateNumber';
 
 @Injectable()
 export class TransactionsService {
@@ -52,6 +54,7 @@ export class TransactionsService {
       amount,
       sender,
       receiver: receiver !,
+      transactionId: generateUniqueTransactionId(),
     });
 
     return this.txnRepo.save(transaction);
@@ -64,15 +67,46 @@ export class TransactionsService {
     return { balance: user.balance };
   }
   
-  async getTransactionHistory(userId: number) {
-    return this.txnRepo.find({
-      where: [
-        { sender: { id: userId } },
-        { receiver: { id: userId } },
-      ],
-      relations: ['sender', 'receiver'],
-      order: { createdAt: 'DESC' },
+  async getTransactionHistory(userId: number, paginationDto: PaginationDto) {
+    const { page = 1, limit = 2 } = paginationDto;
+    const skip = Math.max(0, (page - 1) * limit);
+
+  
+
+    const [transactions, total] = await this.txnRepo
+        .createQueryBuilder('transaction')
+        .where('(transaction.senderId = :userId OR transaction.receiverId = :userId)', 
+              { userId: userId })
+        .orderBy('transaction.createdAt', 'DESC')
+        .skip(skip)
+        .take(limit)
+        .getManyAndCount();
+
+    return {
+        data: transactions,
+        meta: {
+            total,
+            currentPage: page,
+            itemsPerPage: limit,
+            totalPages: Math.ceil(total / limit),
+            hasNextPage: skip + limit < total,
+            hasPreviousPage: page > 1
+        }
+    };
+  }
+
+  async updateTransactionStatus(transactionId: number, status: TransactionStatus) {
+    const transaction = await this.txnRepo.findOne({
+      where: { id: transactionId }
     });
+  
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+  
+    transaction.status = status;
+    return await this.txnRepo.save(transaction);
   }
 }
+
 

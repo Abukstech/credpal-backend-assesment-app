@@ -1,6 +1,6 @@
 // src/transaction/dto/create-transaction.dto.ts
-import { IsEnum, IsNumber, IsOptional, IsPositive } from 'class-validator';
-import { TransactionType } from '../entities/transaction.entity';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
+import { TransactionStatus, TransactionType } from '../entities/transaction.entity';
 
 
 export class CreateTransactionDto {
@@ -13,4 +13,11 @@ export class CreateTransactionDto {
 
   @IsOptional()
   receiverId?: number; // only required for transfers
+}
+
+
+export class UpdateTransactionStatusDto {
+  @IsNotEmpty()
+  @IsEnum(TransactionStatus)
+  status: TransactionStatus;
 }

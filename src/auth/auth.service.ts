@@ -5,6 +5,8 @@ import { CreateCollectionOptions } from 'typeorm';
 import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateLoginDto } from './dto/auth.dto';
+import { Response } from 'express';
+
 
 
 @Injectable()
@@ -29,7 +31,7 @@ export class AuthService {
 
 
     
-      async login(createLoginDto:CreateLoginDto): Promise<any> {
+      async login(createLoginDto:CreateLoginDto,response:Response): Promise<any> {
         const user = await this.userService.findOneByEmail(createLoginDto.email);
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
@@ -50,11 +52,31 @@ export class AuthService {
             email: user.email,
           };
 
+          const token = this.jwtService.sign(payload);
+
+          response.cookie('access_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // use secure in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+          });
+
 
           return {
-            accessToken: this.jwtService.sign(payload),
-            user
-    
+          
+            user,
+            token
           };
+
+         
+
+      
+      }
+
+      async logout(response: Response) {
+        response.clearCookie('access_token');
+        return {
+          message: 'Logout successful'
+        };
       }
 }

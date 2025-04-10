@@ -53,7 +53,7 @@ export class AuthController {
 
 
   @Version('1')
-  @ApiOperation({ summary: 'Login a new User' })
+  @ApiOperation({ summary: 'Login a  User' })
   @ApiBody({ type: CreateLoginDto })
   @ApiResponse({
     status: HttpStatusCodes.OK,
@@ -71,11 +71,11 @@ export class AuthController {
   async login(
     @Body() createLoginDto: CreateLoginDto,
     @Req() req: any,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       console.log('here')
-      const data = await this.authService.login(createLoginDto);
+      const data = await this.authService.login(createLoginDto,res);
       return res.status(HttpStatusCodes.OK).json({
         statusCode: HttpStatusCodes.OK,
         message: 'User Logged in successfully',
@@ -94,6 +94,25 @@ export class AuthController {
 
 
 
+  @Version('1')
+  @ApiOperation({ summary: 'Logout User' })
+
+  @ApiResponse({
+    status: HttpStatusCodes.OK,
+    description: 'User Logged Out successfully.',
+  })
+  @ApiResponse({
+    status: HttpStatusCodes.BAD_REQUEST,
+    description: 'Validation errors or bad request.',
+  })
+  @ApiResponse({
+    status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    return this.authService.logout(response);
+  }
 
 
 
