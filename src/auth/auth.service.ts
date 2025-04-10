@@ -57,13 +57,12 @@ export class AuthService {
  const token = this.jwtService.sign(payload);
   
     
-        response.cookie('access_token', token, {
-          httpOnly: true,
-          secure: false,        // Not secure, but may work temporarily
-          sameSite: 'none',      // Less strict
-          maxAge: 1000 * 60 * 60 * 24 * 7,
-          path: '/',
-        });
+ response.cookie('access_token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'none',
+  maxAge: 24 * 60 * 60 * 1000 // 1 day
+});
         
     
         
