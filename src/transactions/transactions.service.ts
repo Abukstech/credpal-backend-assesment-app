@@ -56,6 +56,7 @@ export class TransactionsService {
       amount,
       sender,
       receiver: receiver!,
+      status:TransactionStatus.APPROVED,
       transactionId: generateUniqueTransactionId(),
     });
 
