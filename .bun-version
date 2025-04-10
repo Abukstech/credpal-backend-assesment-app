@@ -1,1 +1,2 @@
-echo "disable" > .bun-version
+disable
+
