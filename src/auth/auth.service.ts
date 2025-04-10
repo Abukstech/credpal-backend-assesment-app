@@ -60,7 +60,7 @@ export class AuthService {
         response.cookie('access_token', token, {
           httpOnly: true,
           secure: false,        // Not secure, but may work temporarily
-          sameSite: 'lax',      // Less strict
+          sameSite: 'none',      // Less strict
           maxAge: 1000 * 60 * 60 * 24 * 7,
           path: '/',
         });
